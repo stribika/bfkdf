@@ -8,6 +8,7 @@ sys.path.append('../main')
 
 from brainfuck import *
 
+
 bfg = BFG(random)
 
 for i in range(0, 1024):
@@ -23,3 +24,11 @@ for i in range(0, 1024):
             d -= 1
         assert d >= 0, 'mismatched ]'
     assert d == 0, 'mismatched ['
+
+
+bfvm = BFVM('+[>,.<]', 2)
+
+input = list(range(1000))
+output = bfvm.eval(input, 2 + 5 * 1000)
+print(output)
+assert input == output, 'cat failed'
