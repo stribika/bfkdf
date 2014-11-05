@@ -13,6 +13,8 @@ def hash(password, salt):
     code = brainfuck.BFG(code_rng).random_bf(1024)
     print(code)
     vm = brainfuck.BFVM(code, 65536)
-    b = vm.eval(data_rng.bytes(), 1000000)
+    b = bytes(vm.eval(data_rng.bytes(), 1000000))
     print(b)
+    k1 = scrypt.hash(b, salt, 512, 4, 8, 32)
+    return scrypt.hash(k1 + password, salt, 512, 4, 8, 32)
 
