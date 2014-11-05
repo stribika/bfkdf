@@ -37,7 +37,6 @@ class BFVM(object):
         self.__pc    = 0
         self.__ptr   = 0
         self.__stack = []
-        self.__inptr = 0
 
     @property
     def value(self):
@@ -71,8 +70,7 @@ class BFVM(object):
         self.__next()
 
     def __read(self, input):
-        self.value = input[self.__inptr]
-        self.__inptr = (self.__inptr + 1) % len(input)
+        self.value = next(input)
         self.__next()
 
     def __write(self, output):

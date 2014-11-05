@@ -7,9 +7,9 @@ import sys
 sys.path.append('../main')
 
 from brainfuck import *
+from prng import AESCTR
 
-
-bfg = BFG(random)
+bfg = BFG(AESCTR(b'\x00' * 32, b'\x00' * 16))
 
 for i in range(0, 1024):
     bf = bfg.random_bf(i)
@@ -28,7 +28,7 @@ for i in range(0, 1024):
 
 bfvm = BFVM('+[>,.<]', 2)
 
-input = list(range(1000))
+input = iter(range(1000))
 output = bfvm.eval(input, 2 + 5 * 1000)
 print(output)
-assert input == output, 'cat failed'
+assert list(range(1000)) == output, 'cat failed'
