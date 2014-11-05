@@ -7,6 +7,7 @@ cracking. This property makes it suitable for various proof-of-work schemes.
 
 # How?
 
+```
  password, salt
      |
      +----------------------------.
@@ -28,6 +29,7 @@ cracking. This property makes it suitable for various proof-of-work schemes.
             ,--------.       ,--------.
             | scrypt |------>| scrypt |---> key
             `--------'       `--------'
+```
 
 Halting problem? Only 1000000 steps are evaluated. The instruction pointer wraps
 around when the end of the code is reached, in clear violation of the Brainfuck
