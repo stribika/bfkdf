@@ -1,3 +1,6 @@
+import importlib
+import importlib.abc
+
 class BFG(object):
     """The Brainfuck generator"""
 
@@ -70,7 +73,7 @@ class BFVM(object):
         self.__next()
 
     def __read(self, input):
-        self.value = next(input)
+        self.value = next(input) & 0xFF
         self.__next()
 
     def __write(self, output):
@@ -110,3 +113,74 @@ class BFVM(object):
             elif self.opcode == ']': self.__close()
             else: self.__next()
         return output
+
+class BFLoader(importlib.abc.SourceLoader):
+    def get_data(self, path):
+        """
+        Overrides ResourceLoader.get_data.
+        
+        Path is abused to pass the brainfuck code that will be compiled into
+        Python.
+        """
+        
+        brainfuck = self.__preprocess(path)
+        self.__validate(brainfuck)
+        python = self.__compile(brainfuck)
+        return python
+
+    def get_filename(self, fullname): return fullname
+
+    def module_repr(self): return repr(self)
+
+    def __preprocess(self, code):
+        chars = frozenset('+-><,.[]')
+        return ''.join(filter(lambda x: x in chars, code))
+
+    def __validate(self, code):
+        d = 0
+
+        for opcode in code:
+            if   opcode == '[': d += 1
+            elif opcode == ']': d -= 1
+
+            if d < 0: raise ImportError('Mismatched ]')
+
+        if d != 0: raise ImportError('Mismatched [')
+
+    def __compile(self, brainfuck):
+        python  = 'def eval(datasize, input, steps):\n'
+        python += '\tc=0;i=input;o=[];p=0;S=datasize;T=steps;m=[0]*S\n'
+        python += '\twhile True:\n'
+        d = 2
+
+        for opcode in brainfuck:
+            python += '\t' * d
+            python += 'c+=1\n'
+            python += '\t' * d
+            python += 'if T<c: return o\n'
+            python += '\t' * d
+
+            if   opcode == '+': python += 'm[p]=m[p]+1&255'
+            elif opcode == '-': python += 'm[p]=m[p]-1&255'
+            elif opcode == '>': python += 'p=(p+1)%S'
+            elif opcode == '<': python += 'p=(p-1)%S'
+            elif opcode == ',': python += 'm[p]=next(i)&255'
+            elif opcode == '.': python += 'o.append(m[p])'
+            elif opcode == '[':
+                python += 'while m[p]>0:'
+                d += 1
+            else: d -= 1
+
+            python += '\n'
+
+        return python
+
+class BFJIT(object):
+    __loader = BFLoader()
+
+    def __init__(self, code, datasize):
+        self.__module = BFJIT.__loader.load_module(code)
+        self.__datasize = datasize
+
+    def eval(self, input, steps):
+        return self.__module.eval(self.__datasize, input, steps)
