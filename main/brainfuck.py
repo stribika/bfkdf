@@ -115,6 +115,14 @@ class BFVM(object):
         return output
 
 class BFLoader(importlib.abc.SourceLoader):
+    """
+    Python module loader for Brainfuck.
+
+    It is implemented this way because `eval` doesn't work on blocks and
+    the effect of `exec` is optimized out when not using the interactive
+    Python interpreter.
+    """
+
     def get_data(self, path):
         """
         Overrides ResourceLoader.get_data.
@@ -122,7 +130,7 @@ class BFLoader(importlib.abc.SourceLoader):
         Path is abused to pass the brainfuck code that will be compiled into
         Python.
         """
-        
+
         brainfuck = self.__preprocess(path)
         self.__validate(brainfuck)
         python = self.__compile(brainfuck)
@@ -176,6 +184,8 @@ class BFLoader(importlib.abc.SourceLoader):
         return python
 
 class BFJIT(object):
+    """Brainfuck to Python JIT compiler."""
+
     __loader = BFLoader()
 
     def __init__(self, code, datasize):
