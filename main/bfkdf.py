@@ -12,7 +12,7 @@ def hash(password, salt):
     data_rng = prng.AESCTR(data_key, data_iv)
     code = brainfuck.BFG(code_rng).random_bf(1024)
     print(code)
-    vm = brainfuck.BFVM(code, 65536)
+    vm = brainfuck.BFJIT(code, 65536)
     b = bytes(vm.eval(data_rng.bytes(), 1000000))
     print(b)
     k1 = scrypt.hash(b, salt, 512, 4, 8, 32)
