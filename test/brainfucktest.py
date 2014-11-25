@@ -42,16 +42,6 @@ def cat_normal(bf_impl):
 run_test('cat_normal(BFVM)')
 run_test('cat_normal(BFJIT)')
 
-def cat_pc_wrap(bf_impl):
-    bfvm = bf_impl(',.', 1)
-    input = iter(range(200))
-
-    output = bfvm.eval(input, 2 * 200)
-
-    assert list(range(200)) == output, 'cat with PC wrapping failed'
-run_test('cat_pc_wrap(BFVM)')
-run_test('cat_pc_wrap(BFJIT)')
-
 def cat_ptr_wrap(bf_impl):
     bfvm = bf_impl('+[<,.>]', 2)
     input = iter(range(200))
@@ -69,10 +59,11 @@ def random_compare():
 
     for i in range(10):
         bf = bfg.random_bf(1024)
+        print(bf)
         bfint = BFVM(bf, 65536)
         bfjit = BFJIT(bf, 65536)
         out_int = bfint.eval(in_int.bytes(), 1000000)
         out_jit = bfjit.eval(in_jit.bytes(), 1000000)
-        assert out_int == out_jit, 'interpreted and compiled version different'
+        assert out_int == out_jit, 'interpreted and compiled version different\nout_int={out_int}\nout_jit={out_jit}'.format(out_int=out_int, out_jit=out_jit)
 run_test('random_compare()')
 

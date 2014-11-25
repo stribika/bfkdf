@@ -30,7 +30,7 @@ def run_brainfuck(rng):
     return output
 
 def debug(label, data):
-    return
+#    return
     d =  ''.join([ hex(b)[2:].rjust(2, '0') for b in data ])
     d = d if len(d) < 100 else d[:50] + '...' + d[-50:]
     print(label, '=', d, 'bytes =', len(data), 'unique bytes =', len(set(data)))

@@ -54,7 +54,7 @@ class BFVM(object):
         return self.__code[self.__pc]
 
     def __next(self):
-        self.__pc = (self.__pc + 1) % len(self.__code)
+        self.__pc = (self.__pc + 1)
 
     def __plus(self):
         self.value = (self.value + 1) & 0xFF
@@ -102,7 +102,8 @@ class BFVM(object):
 
     def eval(self, input, steps):
         output = []
-        for i in range(steps):
+        i = 0
+        while i < steps and self.__pc < len(self.__code):
             if   self.opcode == '+': self.__plus()
             elif self.opcode == '-': self.__minus()
             elif self.opcode == '>': self.__right()
@@ -112,6 +113,7 @@ class BFVM(object):
             elif self.opcode == '[': self.__open()
             elif self.opcode == ']': self.__close()
             else: self.__next()
+            i += 1
         return output
 
 class BFLoader(importlib.abc.SourceLoader):
@@ -158,8 +160,7 @@ class BFLoader(importlib.abc.SourceLoader):
     def __compile(self, brainfuck):
         python  = 'def eval(datasize, input, steps):\n'
         python += '\tc=0;i=input;o=[];p=0;S=datasize;T=steps;m=[0]*S\n'
-        python += '\twhile True:\n'
-        d = 2
+        d = 1
 
         for opcode in brainfuck:
             python += '\t' * d
@@ -181,6 +182,7 @@ class BFLoader(importlib.abc.SourceLoader):
 
             python += '\n'
 
+        python += '\treturn o\n'
         return python
 
 class BFJIT(object):
